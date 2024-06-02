@@ -1,77 +1,93 @@
-class Tree {
+public class Tree {
     private No raiz;
 
+    // Construtor
+    public Tree() {
+        this.raiz = new No();
+    }
+
+    // Método para inserir uma palavra na árvore
     public void inserir(String palavra) {
         if (raiz == null) {
             raiz = new No();
+            raiz.setPalavra(palavra);
+            return;
         }
+
         No atual = raiz;
-        for (int i = 0; i < palavra.length(); i++) {
-            char c = palavra.charAt(i);
-            int indice = c - 'a';
-            if (atual.getFilho(indice) == null) {
-                No aux = new No();
-                atual.setFilho(indice,aux);
-            }
-            atual = atual.getFilho(indice);
+        int indice = 0;
+
+        // Encontra o nó onde a palavra diverge
+        while (indice < palavra.length() && atual.getPalavra().charAt(indice) == palavra.charAt(indice)) {
+            atual = atual.getFilho(palavra.charAt(indice) - 'a');
+            indice++;
         }
-        atual.setPalavra(palavra);
+
+        // Cria um novo nó para representar a divergência
+        No novoNo = new No();
+        novoNo.setPalavra(palavra.substring(indice));
+
+        // Atualiza os filhos do novo nó
+        No[] filhosNovoNo = new No[No.ALFABETO_SIZE];
+        filhosNovoNo[palavra.charAt(indice) - 'a'] = atual.getFilho(palavra.charAt(indice) - 'a');
+        novoNo.setFilho(filhosNovoNo);
+        atual.setFilho(palavra.charAt(indice) - 'a', novoNo);
+
+        // Atualiza a palavra do nó atual
+        atual.setPalavra(atual.getPalavra().substring(0, indice));
+
+        // Atualiza a posição do nó atual
+        atual.setPosicao(indice);
     }
 
-    public void exibirTodasPalavras() {
-        if (raiz != null) {
-            Fila fila = new Fila();
-            fila.push(raiz); // Inicia a fila com a raiz
-            while (!fila.isEmpty()) {
-                No atual = (No) fila.pop(); // Conversão para tipo No
-                if (atual.getPalavra() != null) {
-                    System.out.println(atual.getPalavra());
-                }
-                for (int i = 0; i < No.ALFABETO_SIZE; i++) {
-                    No filho = atual.getFilho(i);
-                    if (filho != null) {
-                        fila.push(filho);
-                    }
+    // Método auxiliar para encontrar o índice onde há divergência entre duas palavras
+    private int encontrarIndiceDivergencia(String palavra1, String palavra2, int pos) {
+        if (palavra2 != null) {
+            int tamMin = Math.min(palavra1.length(), palavra2.length());
+            for (int i = pos; i < tamMin; i++) {
+                if (palavra1.charAt(i) != palavra2.charAt(i)) {
+                    return i;
                 }
             }
+            return tamMin;
         }
+        return 0;
     }
 
+
+    // Método para buscar uma palavra na árvore
     public boolean buscar(String palavra) {
-        if (raiz == null) {
-            return false;
-        }
-        No atual = raiz;
-        for (int i = 0; i < palavra.length(); i++) {
-            char c = palavra.charAt(i);
-            int indice = c - 'a';
-            if (atual.getFilho(indice) == null) {
-                return false; // Palavra não encontrada
-            }
-            atual = atual.getFilho(indice);
-        }
-        return atual.getPalavra() != null; // Verifica se a palavra foi encontrada até o final
+        // Implementação da busca aqui
+        return false;
     }
 
-    public void exibirNiveis() {
-        if (raiz != null) {
-            Fila fila = new Fila();
-            fila.push(raiz); // Inicia a fila com a raiz
-            No atual;
-            while (!fila.isEmpty()) {
-                int tamanhoNivel = fila.getTF();
-                for (int i = 0; i < tamanhoNivel; i++) {
-                    atual = fila.pop();
-                    System.out.print(atual.getPalavra() + " ");
-                    for (int j = 0; i < No.ALFABETO_SIZE; i++) {
-                        No filho = atual.getFilho(i);
-                        if (filho != null) {
-                            fila.push(filho);
-                        }
-                    }
-                }
-                System.out.println(); // Nova linha para o próximo nível
-            }
+    // Método para exibir todas as palavras da árvore
+    public void exibirTodasPalavras() {
+        exibirTodasPalavrasRecursivo(raiz, "");
+    }
+
+    // Método recursivo para exibir todas as palavras da árvore a partir de um nó
+    private void exibirTodasPalavrasRecursivo(No no, String prefixo) {
+        if (no == null) {
+            return;
         }
+
+        // Concatena o prefixo atual com a palavra do nó
+        String palavraCompleta = prefixo + no.getPalavra();
+
+        // Se a palavra completa for uma palavra válida, imprime
+        if (palavraCompleta.length() > 0) {
+            System.out.println(palavraCompleta);
+        }
+
+        // Chama recursivamente para os filhos do nó
+        for (No filho : no.getFilho()) {
+            exibirTodasPalavrasRecursivo(filho, palavraCompleta);
+        }
+    }
+
+    // Método para exibir todos os nós da árvore nível a nível
+    public void exibirNosNivelANivel() {
+        // Implementação para exibir nós nível a nível aqui
     }
 }
